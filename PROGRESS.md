@@ -9,7 +9,7 @@
 3. ✅ 서버 포크에 `PUBLIC_URL` 클라우드 배포 지원 추가 (`server/server/routes.js`, `server/server/index.js`)
 4. ✅ React Native 앱 프로젝트 스캐폴딩 및 커밋 (`app/`, RN 0.86.0, 패키지명 `com.dfbgb123.faceicebreaker`)
 5. ✅ JDK 17 / Android SDK / NDK 재설치 완료 (아래 "로컬 환경 재설치" 참고 — 이번 세션에 처음부터 다시 진행함)
-6. 🔧 디버그 APK 빌드로 툴체인 검증 — **진행 중, 아직 성공 확인 못함**. 자세한 내용은 아래 "6번 항목 상세: Windows 빌드 트러블슈팅" 참고.
+6. ✅ 디버그 APK 빌드로 툴체인 검증 완료 — `BUILD SUCCESSFUL in 18m 13s`, `app-debug.apk` (236.5MB) 생성 확인 (`app/android/app/build/outputs/apk/debug/`). Windows 260자 경로 문제를 ninja.exe 교체로 해결함 (아래 "6번 항목 상세" 참고).
 7. ✅ RN 앱에 소켓 통신(`socket.io-client`) 연동 — `app/package.json`에 반영 완료. `@react-native-async-storage/async-storage`, `@shopify/react-native-skia`도 함께 설치됨. 캔버스 터치 드로잉에 필요한 `react-native-reanimated`, `react-native-gesture-handler`, `react-native-worklets`도 설치하고 `babel.config.js`(`react-native-worklets/plugin`)와 `index.js`(최상단 `import 'react-native-gesture-handler'`)에 설정 완료.
 8. ✅ RN 앱에 그림 그리기 캔버스(`react-native-skia` + `react-native-gesture-handler`) 구현 — `app/src/components/DrawingCanvas.tsx`. `Gesture.Pan()` + `GestureDetector`로 터치 드로잉, `makeImageSnapshot().encodeToBytes(ImageFormat.PNG)`로 PNG 캡처. 웹 버전과 달리 캔버스 픽셀 크기를 800x600으로 고정하지 않고, 화면 폭에 맞춘 4:3 비율 반응형 크기 사용(터치 좌표계와 렌더링 좌표계가 RN Skia에서는 동일 dp 단위라 별도 스케일 보정 불필요).
 9. ✅ 참가자/진행자 화면 UI 포팅 완료.
@@ -18,7 +18,7 @@
    - 앱 진입점(`App.tsx`): 최초 실행 시 서버 주소 입력 화면(`ServerSetupScreen`, AsyncStorage에 저장) → 참가자/진행자 모드 선택(`ModePickerScreen`) → 각 화면으로 이동. `GestureHandlerRootView`로 루트를 감쌈.
    - **웹 버전 대비 단순화한 부분**: 진행자 가이드 모달, 토스트 알림, 실시간 참가자 수 제한 텍스트 입력 잘라내기, 그림 PNG를 기기 갤러리에 저장하는 기능은 이번 포팅에서 제외함(핵심 게임 플로우와 무관한 UI 편의 기능). 나중에 필요하면 추가.
 10. ⬜ 클라우드 서버 실제 배포(Render 등) 및 `PUBLIC_URL` 설정. 참고: RN 앱은 `ServerSetupScreen`에서 서버 주소를 직접 입력받아 AsyncStorage에 저장하는 방식으로 구현했음 — `PUBLIC_URL` 배포 후에는 그 주소를 입력하면 됨. 로컬 개발 중엔 같은 와이파이의 PC LAN IP(`http://192.168.x.x:3000`)를 입력하면 됨.
-11. ⬜ 에뮬레이터/실기기로 전체 플레이 사이클 검증 — 6번이 끝나야 진행 가능.
+11. ✅ 실기기로 전체 플레이 사이클 검증 완료 (아래 "11번 항목 상세" 참고). 삼성 갤럭시(SM-S911N) 실기기에 USB로 설치해 portrait 모드 세션을 처음부터 끝까지 돌려봄 — 서버 주소 설정 → 모드 선택 → 참가자 입장 → 로비 → 세션 시작 → 그리기 캔버스(실제 터치 드로잉 확인) → 색상 전환 → 타이머 경고색 전환 → 제출(PNG 캡처+업로드) → 결과 화면(서버에서 이미지 재수신해 표시)까지 전부 정상 동작 확인. 크래시·에러 로그 없음.
 12. ⬜ 서명된 릴리즈 APK 빌드 및 사이드로드 배포 안내.
 
 ## 코드 검증 상태 (tsc / lint / jest)
@@ -53,29 +53,57 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name
 - `subprojects { subproject.plugins.withId(...) { ... cmake.version = "4.1.2" } }`로 수정 → **"AgpDslLockedException: It is too late to set version"** 에러
 - 두 방식 모두 `com.facebook.react.rootproject` 플러그인이 서브프로젝트를 먼저 평가해버리는 타이밍 때문에 실패. **이 방식은 포기함, `app/android/build.gradle`는 원상복구했음** (현재 커스텀 코드 없음).
 
-### 시도 4: ninja.exe 바이너리 직접 교체 — 진행 중, 유망함
+### 시도 4: ninja.exe 바이너리 직접 교체 — ✅ 성공
 Gradle 설정을 건드리지 않고, AGP가 실제로 호출하는 `C:\Android\cmake\3.22.1\bin\ninja.exe` 파일 자체를 cmake 4.1.2의 ninja로 덮어씀:
 ```powershell
-# 원본 백업 (이미 해둠, C:\Android\cmake\3.22.1\bin\ninja.exe.orig-1.10.2)
+# 원본은 C:\Android\cmake\3.22.1\bin\ninja.exe.orig-1.10.2 로 백업해둠
 Copy-Item "C:\Android\cmake\4.1.2\bin\ninja.exe" "C:\Android\cmake\3.22.1\bin\ninja.exe" -Force
 ```
-이 상태로 `gradlew assembleDebug`를 다시 돌렸을 때, **이전에 실패했던 지점(gesture-handler codegen)을 통과하고 더 진행되는 것까지 확인**했으나, 사용자 요청으로 세션을 여기서 멈춤 — **빌드가 최종 성공했는지는 아직 확인 못함**.
+이 상태로 `gradlew assembleDebug`를 돌렸더니 **`BUILD SUCCESSFUL in 18m 13s`** 로 완주함. `app-debug.apk` (236.5MB)가 `app/android/app/build/outputs/apk/debug/` 에 생성된 것 확인함. **이 ninja.exe 교체가 최종 해결책**이며, 컴퓨터를 다시 초기화하지 않는 한 유지됨 (SDK 폴더 안의 파일이므로 SDK를 다시 설치하면 재적용 필요 — 아래 "로컬 환경 재설치" 6번 단계 참고).
 
-### 재개 시 할 일
-1. 위 ninja.exe 교체가 이미 되어 있는지 확인 (`C:\Android\cmake\3.22.1\bin\ninja.exe.orig-1.10.2` 파일이 있으면 이미 교체된 것):
-   ```powershell
-   Test-Path "C:\Android\cmake\3.22.1\bin\ninja.exe.orig-1.10.2"
-   ```
-2. 아래 명령으로 다시 빌드 (env var는 새 셸에선 다시 지정해야 함 — User 레벨 영구 설정은 되어 있지만 이 세션의 PowerShell 도구에서는 새 프로세스마다 `$env:` 로 재지정 필요했음):
-   ```powershell
-   $env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.19.10-hotspot"
-   $env:ANDROID_HOME = "C:\Android"
-   $env:ANDROID_SDK_ROOT = "C:\Android"
-   cd C:\Users\dfbgb\face-drawing-icebreaker-app\app\android
-   .\gradlew.bat assembleDebug --stacktrace
-   ```
-3. 성공하면 `app-debug.apk`가 `app/android/app/build/outputs/apk/debug/` 에 생성됨. 에뮬레이터/실기기에 `adb install`로 설치해 11번(전체 플레이 사이클 검증)으로 넘어가면 됨.
-4. 만약 ninja 교체로도 여전히 같은 260자 에러가 난다면 (다른 파일에서 재발 등): `LongPathsEnabled` 레지스트리는 이미 켜져 있으니, 남은 방법은 (a) 프로젝트 자체를 `C:\rn\` 같은 훨씬 짧은 경로로 옮기고 ninja 교체와 병행 (계산상 둘을 합치면 260자 안쪽으로 들어올 가능성 높음), 또는 (b) WSL2 안에서 빌드하는 방법을 고려.
+### 재개 시 참고 (이미 해결됨, 컴퓨터 재초기화 시에만 다시 필요)
+컴퓨터가 다시 초기화되지 않는 한 이 단계는 이미 끝난 상태입니다. 혹시 SDK를 처음부터 다시 깔아야 하는 상황이라면:
+1. `sdkmanager "cmake;4.1.2"` 로 새 cmake도 같이 설치
+2. `Copy-Item "C:\Android\cmake\4.1.2\bin\ninja.exe" "C:\Android\cmake\3.22.1\bin\ninja.exe" -Force` 로 3.22.1의 ninja를 교체 (백업하고 싶으면 교체 전에 원본을 `ninja.exe.orig-1.10.2` 같은 이름으로 복사해두면 됨)
+3. `LongPathsEnabled` 레지스트리는 도움이 되진 않았지만 해가 되지도 않으니 그대로 둬도 무방함.
+
+## 11번 항목 상세: 실기기 검증 방법과 결과
+
+### 검증 방법
+에뮬레이터는 Windows에 Hyper-V/Virtual Machine Platform 기능이 꺼져 있어(재부팅 필요) 대신 **실제 안드로이드 기기(삼성 갤럭시, SM-S911N)를 USB로 연결**해서 검증함.
+
+1. 폰에서 개발자 옵션 → USB 디버깅 켜고 PC에 USB로 연결, `adb devices`로 `unauthorized` → 폰 화면에서 허용 눌러서 `device` 상태로 전환.
+2. `adb install -r app-debug.apk` 로 설치.
+3. Metro 번들러 실행 (`npx react-native start`) + `adb reverse tcp:8081 tcp:8081` 로 JS 번들 로딩.
+4. `adb shell am start -n com.dfbgb123.faceicebreaker/.MainActivity` 로 앱 실행.
+5. `cd server && npm install && npm start` 로 게임 서버 구동 (포트 3000), `adb reverse tcp:3000 tcp:3000` 로 폰이 USB 통해 `localhost:3000`으로 서버에 접속 가능하게 함 (같은 와이파이 라우팅에 의존하지 않아 더 안정적).
+6. 앱에서 서버 주소로 `http://localhost:3000` 입력 → 참가자/진행자 모드 선택 화면 확인.
+7. 진행자 화면은 아직 실제로 조작하지 않고, 대신 `socket.io-client`(서버의 devDependency)로 만든 짧은 Node 스크립트로 REST API 호출(`POST /api/sessions`, portrait 모드, 참가자 "테스터1"/"테스터2") + 소켓 이벤트(`host:join`, `host:start-session`)를 직접 호출해서 세션을 시작시킴.
+8. 폰 앱에서 "참가자로 입장" → "테스터1" 선택 → 로비 화면 확인 → (호스트 스크립트로 시작 후) 그리기 화면으로 자동 전환됨.
+9. `adb shell input swipe ...` 로 캔버스에 실제 터치 드로잉 시뮬레이션 (X자 그리기 + 색상 스와치 탭 후 추가 선) → `adb shell screencap`으로 캡처해서 시각 확인.
+10. "제출하기" 탭 → 결과 화면 전환 확인.
+
+### 결과 — 전부 정상 확인
+- 서버 주소 입력 → AsyncStorage 저장 → 모드 선택 화면 정상 전환
+- 참가자 입장 화면이 서버의 실시간 참가자 목록을 정확히 표시 (claimed/미claimed 반영)
+- 로비 화면 ("테스터1님, 환영해요!")
+- 진행자가 세션 시작하자 자동으로 그리기 화면 전환, 라운드 라벨/그릴 대상 이름/카운트다운 모두 정확
+- **`react-native-skia` + `react-native-gesture-handler` 터치 드로잉이 실기기에서 완벽히 동작** (스와이프 두 번으로 그린 X자가 정확히 캔버스에 렌더링됨) — 이번 포팅에서 가장 리스크가 컸던 부분이라 특히 중요한 확인
+- 색상 스와치 탭 → 색 전환 정상 (검정 → 주황)
+- 카운트다운이 20초 이하로 남으면 경고색(주황/빨강)으로 자동 전환 (`useCountdown`의 `isWarning` 로직 확인)
+- "제출하기" 탭 → PNG 캡처(`makeImageSnapshot().encodeToBytes`) → `Uint8Array` 업로드 → 서버 저장 → 결과 화면에서 서버로부터 이미지 재수신해 정확히 표시 (내가 그린 X자+주황선이 그대로 보임)
+- 상대(테스터2)가 미참여 상태일 때 "상대가 아직 제출하지 않았어요" 빈 상태 문구도 정상 표시
+- 로그캣에 `FATAL EXCEPTION` 없음, 서버 로그에도 에러 없음
+
+### 아직 검증 못 한 것 (다음에 이어서 할 것)
+- **진행자(Host) RN 화면 자체는 실제로 조작해보지 않음** — 위 테스트에서는 세션 시작을 Node 스크립트로 대신함. `HostScreen`의 실제 UI(세션 생성 폼, QR 표시, 로스터, 강제 다음 라운드, 세션 종료 버튼)는 코드 리뷰로만 확인했고 기기에서 직접 눌러보지 않았음.
+- **바톤터치·1:多 모드**는 검증 안 함 (portrait 모드만 테스트). 특히 바톤터치 모드의 "이전 캔버스를 배경으로 불러오기"(`loadBackground` → `useImage`) 경로는 아직 실기기에서 확인 안 됨.
+- **추측(guess)/정답 공개(reveal) 패널**은 검증 안 함 (portrait 모드는 guess 패널이 없음 — 1:多 모드에서만 나타남).
+- **지우개 도구**, **전체 지우기 버튼**은 육안으로 버튼만 확인했고 실제 지워지는 동작은 안 눌러봄.
+- 두 명이 동시에 접속하는 실제 멀티 유저 시나리오(다른 사람이 다른 폰으로 동시 접속)는 테스트 안 함.
+- 클라우드 배포 환경(`PUBLIC_URL`)에서의 접속은 아직 로컬 서버로만 확인함.
+
+재개 시엔 위 "아직 검증 못 한 것" 목록부터 이어서 진행하면 됩니다. 특히 진행자 화면을 실제로 눌러보는 것과 바톤터치 모드 테스트가 우선순위 높음.
 
 ## 로컬 환경 재설치 (컴퓨터 초기화 후 필요) — 이번 세션에 다시 검증한 최신 버전
 
