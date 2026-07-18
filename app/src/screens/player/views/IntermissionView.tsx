@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Countdown } from '../../../components/Countdown';
+import { colors } from '../../../theme';
 import type { Assignment } from '../../../types';
 
 interface IntermissionViewProps {
@@ -21,7 +22,7 @@ export function IntermissionView({ assignment, intermissionEndsAt }: Intermissio
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 },
-  roundLabel: { fontSize: 13, color: '#9a9488' },
-  subject: { fontSize: 22, fontWeight: '700', color: '#232320' },
-  body: { fontSize: 14, color: '#6b6b66' },
+  roundLabel: { fontSize: 12.5, color: colors.inkSoft, textTransform: 'uppercase', letterSpacing: 0.5 },
+  subject: { fontSize: 26, fontWeight: '800', color: colors.ink },
+  body: { fontSize: 14, color: colors.inkSoft },
 });

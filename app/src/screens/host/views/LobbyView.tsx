@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { Participant, SessionMode } from '../../../types';
+import { colors, fontMono } from '../../../theme';
 import { MODE_META } from '../hostReducer';
 
 interface LobbyViewProps {
@@ -58,21 +59,60 @@ export function LobbyView({
 
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 16 },
-  qrCard: { alignItems: 'center', gap: 6, padding: 16, borderRadius: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd8cf' },
-  qrImage: { width: 180, height: 180 },
-  joinUrl: { fontSize: 13, color: '#232320' },
-  modeLabel: { fontSize: 13, fontWeight: '600', color: '#232320' },
-  hint: { fontSize: 12, color: '#9a9488', textAlign: 'center' },
+  qrCard: {
+    alignItems: 'center',
+    gap: 8,
+    padding: 22,
+    borderRadius: 24,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  qrImage: { width: 180, height: 180, borderRadius: 22 },
+  joinUrl: {
+    fontFamily: fontMono,
+    fontSize: 13,
+    color: colors.ink,
+    backgroundColor: colors.surface2,
+    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  modeLabel: { fontSize: 13, fontWeight: '600', color: colors.ink },
+  hint: { fontSize: 12, color: colors.inkSoft, textAlign: 'center' },
   roster: { gap: 8 },
-  rosterRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#ccc' },
-  dotConnected: { backgroundColor: '#4caf50' },
-  rosterName: { flex: 1, fontSize: 14, color: '#232320' },
-  rosterSeat: { fontSize: 12, color: '#9a9488' },
-  removeBtn: { paddingVertical: 4, paddingHorizontal: 10, borderRadius: 6, backgroundColor: '#f6e6e0' },
-  removeBtnText: { fontSize: 12, color: '#c0392b' },
-  startBtn: { paddingVertical: 14, borderRadius: 10, backgroundColor: '#232320', alignItems: 'center' },
-  startBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  endBtn: { paddingVertical: 12, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#ddd8cf' },
-  endBtnText: { color: '#6b6b66', fontSize: 14 },
+  rosterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.line },
+  dotConnected: { backgroundColor: colors.accentViolet },
+  rosterName: { flex: 1, fontSize: 14, fontWeight: '600', color: colors.ink },
+  rosterSeat: { fontSize: 12, color: colors.inkSoft },
+  removeBtn: { paddingVertical: 4, paddingHorizontal: 4 },
+  removeBtnText: { fontSize: 13, fontWeight: '700', color: colors.danger },
+  startBtn: {
+    paddingVertical: 14,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+    alignItems: 'center',
+  },
+  startBtnText: { color: colors.ink, fontSize: 16, fontWeight: '700' },
+  endBtn: {
+    paddingVertical: 12,
+    borderRadius: 20,
+    alignItems: 'center',
+    backgroundColor: colors.ghostBg,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  endBtnText: { color: colors.inkSoft, fontSize: 14, fontWeight: '600' },
 });

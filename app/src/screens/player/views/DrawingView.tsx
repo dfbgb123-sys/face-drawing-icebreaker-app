@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Countdown } from '../../../components/Countdown';
 import { DrawingCanvas, DrawingCanvasHandle, DrawingTool } from '../../../components/DrawingCanvas';
+import { colors, fontMono } from '../../../theme';
 import type { Assignment, SessionMode } from '../../../types';
 import { subjectPromptText } from '../playerReducer';
 
@@ -57,7 +58,7 @@ export function DrawingView({
         <Countdown endsAt={roundEndsAt} onDone={onSubmit} style={styles.timer} />
       </View>
 
-      <View style={[styles.canvasWrap, { width: canvasWidth, height: canvasHeight }]}>
+      <View style={styles.canvasWrap}>
         <DrawingCanvas ref={canvasRef} width={canvasWidth} height={canvasHeight} disabled={submitted} />
       </View>
 
@@ -117,39 +118,60 @@ export function DrawingView({
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, alignItems: 'center', gap: 12 },
   header: { alignItems: 'center', gap: 4 },
-  roundLabel: { fontSize: 13, color: '#9a9488' },
-  subjectName: { fontSize: 17, fontWeight: '700', color: '#232320', textAlign: 'center' },
-  timer: { fontSize: 24 },
+  roundLabel: {
+    fontFamily: fontMono,
+    fontSize: 12.5,
+    color: colors.inkSoft,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  subjectName: { fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'center' },
+  timer: { fontSize: 28 },
   canvasWrap: {
-    borderRadius: 12,
-    overflow: 'hidden',
+    padding: 10,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#ddd8cf',
+    borderColor: colors.line,
+    shadowColor: colors.shadow,
+    shadowOpacity: 1,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
   },
-  toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center', alignItems: 'center' },
-  swatch: { width: 32, height: 32, borderRadius: 16, borderWidth: 2, borderColor: 'transparent' },
-  swatchActive: { borderColor: '#232320' },
+  toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', alignItems: 'center' },
+  swatch: { width: 38, height: 38, borderRadius: 19, borderWidth: 2, borderColor: 'transparent' },
+  swatchActive: { borderColor: colors.accent },
   toolBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd8cf',
-    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
   },
-  toolBtnActive: { backgroundColor: '#232320' },
-  toolBtnText: { fontSize: 13, color: '#232320' },
-  toolBtnTextActive: { color: '#fff' },
+  toolBtnActive: { borderColor: colors.accent, backgroundColor: colors.accentTint },
+  toolBtnText: { fontSize: 14, fontWeight: '700', color: colors.inkSoft },
+  toolBtnTextActive: { color: colors.ink },
   submitBtn: {
     width: '100%',
     maxWidth: 320,
-    paddingVertical: 14,
-    borderRadius: 10,
-    backgroundColor: '#232320',
+    paddingVertical: 16,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
     alignItems: 'center',
   },
   submitBtnDisabled: { opacity: 0.4 },
-  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  submittedBanner: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#eef0e4' },
-  submittedBannerText: { fontSize: 13, color: '#3f4a2f' },
+  submitBtnText: { color: colors.ink, fontSize: 16, fontWeight: '700' },
+  submittedBanner: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  submittedBannerText: { fontSize: 14, color: colors.inkSoft },
 });

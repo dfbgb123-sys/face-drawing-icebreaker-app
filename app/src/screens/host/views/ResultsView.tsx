@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors } from '../../../theme';
 
 interface ResultsViewProps {
   onEndSession: () => void;
@@ -22,8 +23,16 @@ export function ResultsView({ onEndSession }: ResultsViewProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
-  title: { fontSize: 20, fontWeight: '700', color: '#232320', textAlign: 'center' },
-  body: { fontSize: 13, color: '#6b6b66', textAlign: 'center', lineHeight: 20 },
-  endBtn: { marginTop: 8, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 10, borderWidth: 1, borderColor: '#ddd8cf' },
-  endBtnText: { color: '#6b6b66', fontSize: 14 },
+  title: { fontSize: 20, fontWeight: '700', color: colors.ink, textAlign: 'center' },
+  body: { fontSize: 13, color: colors.inkSoft, textAlign: 'center', lineHeight: 20 },
+  endBtn: {
+    marginTop: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    backgroundColor: colors.ghostBg,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  endBtnText: { color: colors.inkSoft, fontSize: 14, fontWeight: '600' },
 });

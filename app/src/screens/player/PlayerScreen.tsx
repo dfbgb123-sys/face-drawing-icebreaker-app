@@ -7,6 +7,8 @@ import { useSocket } from '../../hooks/useSocket';
 import { clearIdentity, loadIdentity, saveIdentity } from '../../services/identity';
 import { fetchActiveSession, submitDrawing } from '../../services/api';
 import type { DrawingCanvasHandle } from '../../components/DrawingCanvas';
+import { TopBarExit } from '../../components/TopBarExit';
+import { colors } from '../../theme';
 import type { Assignment, Portrait, SessionStatus } from '../../types';
 import { initialPlayerState, playerReducer } from './playerReducer';
 import { NoneView } from './views/NoneView';
@@ -214,9 +216,7 @@ export function PlayerScreen({ onExit }: PlayerScreenProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.topBar}>
-        <Text style={styles.topBarLink} onPress={onExit}>
-          ‹ 나가기
-        </Text>
+        <TopBarExit onPress={onExit} />
       </View>
       {state.view === 'loading' ? (
         <View style={styles.centered}>
@@ -273,10 +273,9 @@ export function PlayerScreen({ onExit }: PlayerScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#faf8f2' },
-  topBar: { paddingHorizontal: 16, paddingTop: 8 },
-  topBarLink: { fontSize: 14, color: '#6b6b66' },
+  safeArea: { flex: 1, backgroundColor: colors.bg },
+  topBar: { paddingHorizontal: 8, paddingTop: 4 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 24 },
-  title: { fontSize: 20, fontWeight: '700', color: '#232320' },
-  muted: { fontSize: 14, color: '#6b6b66' },
+  title: { fontSize: 20, fontWeight: '700', color: colors.ink },
+  muted: { fontSize: 14, color: colors.inkSoft },
 });

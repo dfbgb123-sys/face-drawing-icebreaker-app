@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { colors } from '../../../theme';
 
 interface LobbyViewProps {
   name: string | null;
@@ -16,6 +17,6 @@ export function LobbyView({ name }: LobbyViewProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 },
-  title: { fontSize: 22, fontWeight: '700', color: '#232320' },
-  body: { fontSize: 14, color: '#6b6b66', textAlign: 'center' },
+  title: { fontSize: 22, fontWeight: '700', color: colors.ink },
+  body: { fontSize: 14, color: colors.inkSoft, textAlign: 'center' },
 });

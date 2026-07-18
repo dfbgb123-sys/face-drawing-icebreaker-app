@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '../theme';
 
 interface ModePickerScreenProps {
   apiBase: string;
@@ -37,25 +38,30 @@ export function ModePickerScreen({ apiBase, onPickPlayer, onPickHost, onChangeSe
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#faf8f2' },
+  safeArea: { flex: 1, backgroundColor: colors.bg },
   container: { flex: 1, padding: 24, justifyContent: 'center', gap: 16 },
-  title: { fontSize: 22, fontWeight: '700', color: '#232320', textAlign: 'center' },
-  subtitle: { fontSize: 12, color: '#9a9488', textAlign: 'center', marginBottom: 8 },
+  title: { fontSize: 22, fontWeight: '700', color: colors.ink, textAlign: 'center' },
+  subtitle: { fontSize: 12, color: colors.inkSoft, textAlign: 'center', marginBottom: 8 },
   card: {
     padding: 20,
-    borderRadius: 14,
-    backgroundColor: '#fff',
+    borderRadius: 24,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#ddd8cf',
+    borderColor: colors.line,
     gap: 4,
+    shadowColor: colors.shadow,
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 3,
   },
   cardIcon: { fontSize: 28 },
-  cardTitle: { fontSize: 17, fontWeight: '700', color: '#232320' },
-  cardBody: { fontSize: 13, color: '#6b6b66' },
+  cardTitle: { fontSize: 17, fontWeight: '700', color: colors.ink },
+  cardBody: { fontSize: 13, color: colors.inkSoft },
   changeServer: {
     marginTop: 16,
     fontSize: 13,
-    color: '#9a9488',
+    color: colors.inkSoft,
     textAlign: 'center',
     textDecorationLine: 'underline',
   },

@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors } from '../../../theme';
 
 interface NoneViewProps {
   title: string;
@@ -21,15 +22,16 @@ export function NoneView({ title, body, onRetry }: NoneViewProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
-  title: { fontSize: 20, fontWeight: '700', color: '#232320' },
-  body: { fontSize: 14, color: '#6b6b66', textAlign: 'center' },
+  title: { fontSize: 20, fontWeight: '700', color: colors.ink },
+  body: { fontSize: 14, color: colors.inkSoft, textAlign: 'center' },
   button: {
     marginTop: 12,
-    paddingVertical: 12,
+    paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 10,
+    borderRadius: 20,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#232320',
+    borderColor: colors.line,
   },
-  buttonText: { fontSize: 15, fontWeight: '600', color: '#232320' },
+  buttonText: { fontSize: 15, fontWeight: '700', color: colors.ink },
 });

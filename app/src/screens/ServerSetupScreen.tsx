@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors } from '../theme';
 
 interface ServerSetupScreenProps {
   initialValue?: string;
@@ -58,21 +59,27 @@ export function ServerSetupScreen({ initialValue = '', onSave }: ServerSetupScre
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#faf8f2' },
+  safeArea: { flex: 1, backgroundColor: colors.bg },
   container: { flex: 1, padding: 24, justifyContent: 'center', gap: 12 },
-  title: { fontSize: 22, fontWeight: '700', color: '#232320' },
-  body: { fontSize: 14, color: '#6b6b66', lineHeight: 20 },
+  title: { fontSize: 22, fontWeight: '700', color: colors.ink },
+  body: { fontSize: 14, color: colors.inkSoft, lineHeight: 20 },
   input: {
     marginTop: 8,
-    borderRadius: 10,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#ddd8cf',
-    backgroundColor: '#fff',
-    padding: 12,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+    padding: 14,
     fontSize: 15,
-    color: '#232320',
+    color: colors.ink,
   },
-  error: { fontSize: 13, color: '#c0392b' },
-  button: { marginTop: 8, paddingVertical: 14, borderRadius: 10, backgroundColor: '#232320', alignItems: 'center' },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  error: { fontSize: 13, color: colors.danger },
+  button: {
+    marginTop: 8,
+    paddingVertical: 16,
+    borderRadius: 20,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+  },
+  buttonText: { color: colors.accentInk, fontSize: 16, fontWeight: '700' },
 });

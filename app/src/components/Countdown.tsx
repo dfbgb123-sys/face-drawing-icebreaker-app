@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TextStyle } from 'react-native';
 import { useCountdown } from '../hooks/useCountdown';
+import { colors, fontMono } from '../theme';
 
 interface CountdownProps {
   endsAt: number | null | undefined;
@@ -15,12 +16,13 @@ export function Countdown({ endsAt, onDone, style }: CountdownProps) {
 
 const styles = StyleSheet.create({
   timer: {
+    fontFamily: fontMono,
     fontSize: 32,
     fontWeight: '700',
-    color: '#232320',
+    color: colors.ink,
     textAlign: 'center',
   },
   warning: {
-    color: '#d94f26',
+    color: colors.danger,
   },
 });

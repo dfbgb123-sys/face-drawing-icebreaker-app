@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Countdown } from '../../../components/Countdown';
+import { colors, fontMono } from '../../../theme';
 import type { Participant } from '../../../types';
 
 interface ProgressViewProps {
@@ -50,17 +51,55 @@ export function ProgressView({
 
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 16 },
-  card: { alignItems: 'center', gap: 8, padding: 20, borderRadius: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd8cf' },
-  roundLabel: { fontSize: 15, fontWeight: '600', color: '#232320' },
-  submitCount: { fontSize: 13, color: '#6b6b66' },
+  card: {
+    alignItems: 'center',
+    gap: 8,
+    padding: 24,
+    borderRadius: 24,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  roundLabel: {
+    fontFamily: fontMono,
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.inkSoft,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  submitCount: { fontSize: 15, color: colors.inkSoft },
   roster: { gap: 8 },
-  rosterRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#ccc' },
-  dotConnected: { backgroundColor: '#4caf50' },
-  rosterName: { flex: 1, fontSize: 14, color: '#232320' },
-  rosterSeat: { fontSize: 12, color: '#9a9488' },
-  secondaryBtn: { paddingVertical: 12, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#232320' },
-  secondaryBtnText: { color: '#232320', fontSize: 14, fontWeight: '600' },
-  endBtn: { paddingVertical: 12, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#ddd8cf' },
-  endBtnText: { color: '#6b6b66', fontSize: 14 },
+  rosterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.line },
+  dotConnected: { backgroundColor: colors.accentViolet },
+  rosterName: { flex: 1, fontSize: 14, fontWeight: '600', color: colors.ink },
+  rosterSeat: { fontSize: 12, color: colors.inkSoft },
+  secondaryBtn: {
+    paddingVertical: 12,
+    borderRadius: 20,
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  secondaryBtnText: { color: colors.ink, fontSize: 14, fontWeight: '700' },
+  endBtn: {
+    paddingVertical: 12,
+    borderRadius: 20,
+    alignItems: 'center',
+    backgroundColor: colors.ghostBg,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  endBtnText: { color: colors.inkSoft, fontSize: 14, fontWeight: '600' },
 });

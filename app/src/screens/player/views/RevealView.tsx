@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Countdown } from '../../../components/Countdown';
+import { colors } from '../../../theme';
 
 interface RevealViewProps {
   revealEndsAt: number | null;
@@ -18,6 +19,6 @@ export function RevealView({ revealEndsAt }: RevealViewProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 },
-  roundLabel: { fontSize: 13, color: '#9a9488' },
-  title: { fontSize: 20, fontWeight: '700', color: '#232320' },
+  roundLabel: { fontSize: 13, color: colors.inkSoft },
+  title: { fontSize: 20, fontWeight: '700', color: colors.ink },
 });

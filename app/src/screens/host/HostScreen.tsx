@@ -1,22 +1,48 @@
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApiBase } from '../../context/ApiBaseContext';
 import { useSocket } from '../../hooks/useSocket';
 import { createSession, CreateSessionError, fetchActiveSession } from '../../services/api';
+import { colors } from '../../theme';
+import { TopBarExit } from '../../components/TopBarExit';
 import type { SessionStatus } from '../../types';
 import { hostReducer, initialHostState } from './hostReducer';
 import { SetupView } from './views/SetupView';
 import { LobbyView } from './views/LobbyView';
 import { ProgressView } from './views/ProgressView';
 import { ResultsView } from './views/ResultsView';
+import { loadHostSessionApiBase, saveHostSessionApiBase, clearHostSessionApiBase } from '../../config';
+import { pickInstance } from '../../instances';
 
 interface HostScreenProps {
   onExit: () => void;
 }
 
 export function HostScreen({ onExit }: HostScreenProps) {
-  const apiBase = useApiBase();
+  const defaultApiBase = useApiBase();
+  const [hostApiBase, setHostApiBase] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      // 재시작 복귀라면 저장된 인스턴스를 그대로 쓰고, 새 세션을 만드는 거라면
+      // 이 시점에 인스턴스 목록 중 하나를 미리 골라 이 진행자 세션 내내 고정해서 쓴다.
+      const stored = await loadHostSessionApiBase();
+      const resolved = stored || pickInstance(defaultApiBase);
+      if (!cancelled) setHostApiBase(resolved);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [defaultApiBase]);
+
+  if (!hostApiBase) return null;
+
+  return <HostScreenInner apiBase={hostApiBase} onExit={onExit} />;
+}
+
+function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => void }) {
   const socket = useSocket(apiBase);
   const [state, dispatch] = useReducer(hostReducer, initialHostState);
 
@@ -93,6 +119,7 @@ export function HostScreen({ onExit }: HostScreenProps) {
           roundLengthMs: Math.round(minutes * 60 * 1000),
           mode: state.selectedMode,
         });
+        await saveHostSessionApiBase(apiBase);
         dispatch({
           type: 'sessionCreated',
           sessionId: result.sessionId,
@@ -152,6 +179,7 @@ export function HostScreen({ onExit }: HostScreenProps) {
         style: 'destructive',
         onPress: () => {
           socket.emit('host:end-session', {}, () => {
+            clearHostSessionApiBase();
             dispatch({ type: 'lobbyUpdate', participants: state.participants, status: 'ended' });
           });
         },
@@ -162,9 +190,7 @@ export function HostScreen({ onExit }: HostScreenProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.topBar}>
-        <Text style={styles.topBarLink} onPress={onExit}>
-          ‹ 나가기
-        </Text>
+        <TopBarExit onPress={onExit} />
       </View>
       {state.view === 'setup' ? (
         <SetupView
@@ -210,11 +236,10 @@ export function HostScreen({ onExit }: HostScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#faf8f2' },
-  topBar: { paddingHorizontal: 16, paddingTop: 8 },
-  topBarLink: { fontSize: 14, color: '#6b6b66' },
+  safeArea: { flex: 1, backgroundColor: colors.bg },
+  topBar: { paddingHorizontal: 8, paddingTop: 4 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 24 },
-  title: { fontSize: 20, fontWeight: '700', color: '#232320' },
-  muted: { fontSize: 14, color: '#6b6b66', textAlign: 'center' },
-  linkBtn: { marginTop: 8, fontSize: 14, fontWeight: '600', color: '#232320', textDecorationLine: 'underline' },
+  title: { fontSize: 20, fontWeight: '700', color: colors.ink },
+  muted: { fontSize: 14, color: colors.inkSoft, textAlign: 'center' },
+  linkBtn: { marginTop: 8, fontSize: 14, fontWeight: '600', color: colors.accent, textDecorationLine: 'underline' },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { Participant } from '../../../types';
+import { colors } from '../../../theme';
 
 interface JoinViewProps {
   participants: Participant[];
@@ -34,20 +35,20 @@ export function JoinView({ participants, onJoin }: JoinViewProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  title: { fontSize: 20, fontWeight: '700', color: '#232320', textAlign: 'center', marginBottom: 16 },
+  title: { fontSize: 20, fontWeight: '700', color: colors.ink, textAlign: 'center', marginBottom: 16 },
   list: { gap: 12 },
   row: { gap: 12 },
   nameButton: {
     flex: 1,
-    paddingVertical: 18,
-    borderRadius: 12,
+    paddingVertical: 20,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#ddd8cf',
+    borderColor: colors.line,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
   },
   nameButtonDisabled: { opacity: 0.4 },
-  nameText: { fontSize: 16, fontWeight: '600', color: '#232320' },
-  takenLabel: { fontSize: 12, color: '#9a9488', marginTop: 4 },
+  nameText: { fontSize: 16, fontWeight: '700', color: colors.ink },
+  takenLabel: { fontSize: 12, fontWeight: '600', color: colors.inkSoft, marginTop: 4 },
 });
