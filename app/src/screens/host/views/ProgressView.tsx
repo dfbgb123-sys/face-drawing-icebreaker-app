@@ -1,6 +1,7 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Countdown } from '../../../components/Countdown';
+import { Button } from '../../../components/Button';
 import { colors, fontMono } from '../../../theme';
 import type { Participant } from '../../../types';
 
@@ -39,12 +40,8 @@ export function ProgressView({
         ))}
       </View>
 
-      <TouchableOpacity style={styles.secondaryBtn} onPress={onForceAdvance}>
-        <Text style={styles.secondaryBtnText}>다음 라운드로 넘기기</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.endBtn} onPress={onEndSession}>
-        <Text style={styles.endBtnText}>세션 종료</Text>
-      </TouchableOpacity>
+      <Button title="다음 라운드로 넘기기" variant="secondary" onPress={onForceAdvance} />
+      <Button title="세션 종료" variant="ghost" onPress={onEndSession} />
     </ScrollView>
   );
 }
@@ -84,22 +81,4 @@ const styles = StyleSheet.create({
   dotConnected: { backgroundColor: colors.accentViolet },
   rosterName: { flex: 1, fontSize: 14, fontWeight: '600', color: colors.ink },
   rosterSeat: { fontSize: 12, color: colors.inkSoft },
-  secondaryBtn: {
-    paddingVertical: 12,
-    borderRadius: 20,
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  secondaryBtnText: { color: colors.ink, fontSize: 14, fontWeight: '700' },
-  endBtn: {
-    paddingVertical: 12,
-    borderRadius: 20,
-    alignItems: 'center',
-    backgroundColor: colors.ghostBg,
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  endBtnText: { color: colors.inkSoft, fontSize: 14, fontWeight: '600' },
 });

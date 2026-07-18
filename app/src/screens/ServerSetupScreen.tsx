@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../theme';
+import { Button } from '../components/Button';
 
 interface ServerSetupScreenProps {
   initialValue?: string;
@@ -50,9 +44,7 @@ export function ServerSetupScreen({ initialValue = '', onSave }: ServerSetupScre
           keyboardType="url"
         />
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        <TouchableOpacity style={styles.button} onPress={handleSave}>
-          <Text style={styles.buttonText}>저장하고 계속하기</Text>
-        </TouchableOpacity>
+        <Button title="저장하고 계속하기" variant="primary" style={styles.button} onPress={handleSave} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -74,12 +66,5 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   error: { fontSize: 13, color: colors.danger },
-  button: {
-    marginTop: 8,
-    paddingVertical: 16,
-    borderRadius: 20,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-  },
-  buttonText: { color: colors.accentInk, fontSize: 16, fontWeight: '700' },
+  button: { marginTop: 8 },
 });

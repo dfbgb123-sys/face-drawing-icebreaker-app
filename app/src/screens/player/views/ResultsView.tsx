@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { resolveUrl } from '../../../config';
 import { colors, fontMono } from '../../../theme';
+import { Button } from '../../../components/Button';
 import type { GuessState, Participant, Portrait, SessionMode } from '../../../types';
 
 interface ResultsViewProps {
@@ -129,13 +130,13 @@ export function ResultsView({
                     </TouchableOpacity>
                   ))}
               </View>
-              <TouchableOpacity
-                style={[styles.revealBtn, (guess.revealed || current.missing) && styles.revealBtnDisabled]}
+              <Button
+                title="정답 보기"
+                variant="secondary"
+                style={styles.revealBtn}
                 disabled={Boolean(guess.revealed) || current.missing}
                 onPress={() => onRequestReveal(current)}
-              >
-                <Text style={styles.revealBtnText}>정답 보기</Text>
-              </TouchableOpacity>
+              />
               {guess.revealed ? (
                 <View style={[styles.revealResult, guess.correct ? styles.revealCorrect : styles.revealWrong]}>
                   <Text
@@ -243,18 +244,7 @@ const styles = StyleSheet.create({
   guessOptionSelected: { borderColor: colors.accentViolet, backgroundColor: colors.accentVioletTint },
   guessOptionText: { fontSize: 13, color: colors.ink, fontWeight: '700' },
   guessOptionTextSelected: { color: colors.accent2 },
-  revealBtn: {
-    alignSelf: 'center',
-    marginTop: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 22,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
-  },
-  revealBtnDisabled: { opacity: 0.4 },
-  revealBtnText: { fontSize: 14, fontWeight: '700', color: colors.ink },
+  revealBtn: { alignSelf: 'center', marginTop: 8 },
   revealResult: {
     padding: 14,
     borderRadius: 16,

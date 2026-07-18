@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Countdown } from '../../../components/Countdown';
 import { DrawingCanvas, DrawingCanvasHandle, DrawingTool } from '../../../components/DrawingCanvas';
 import { colors, fontMono } from '../../../theme';
+import { Button } from '../../../components/Button';
 import type { Assignment, SessionMode } from '../../../types';
 import { subjectPromptText } from '../playerReducer';
 
@@ -98,13 +99,13 @@ export function DrawingView({
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
-        style={[styles.submitBtn, submitted && styles.submitBtnDisabled]}
+      <Button
+        title="제출하기"
+        variant="secondary"
+        style={styles.submitBtn}
         disabled={submitted}
         onPress={onSubmit}
-      >
-        <Text style={styles.submitBtnText}>제출하기</Text>
-      </TouchableOpacity>
+      />
 
       {submitted ? (
         <View style={styles.submittedBanner}>
@@ -153,18 +154,7 @@ const styles = StyleSheet.create({
   toolBtnActive: { borderColor: colors.accent, backgroundColor: colors.accentTint },
   toolBtnText: { fontSize: 14, fontWeight: '700', color: colors.inkSoft },
   toolBtnTextActive: { color: colors.ink },
-  submitBtn: {
-    width: '100%',
-    maxWidth: 320,
-    paddingVertical: 16,
-    borderRadius: 22,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
-    alignItems: 'center',
-  },
-  submitBtnDisabled: { opacity: 0.4 },
-  submitBtnText: { color: colors.ink, fontSize: 16, fontWeight: '700' },
+  submitBtn: { width: '100%', maxWidth: 320 },
   submittedBanner: {
     paddingVertical: 12,
     paddingHorizontal: 16,

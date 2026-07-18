@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { SessionMode } from '../../../types';
 import { colors } from '../../../theme';
+import { Button } from '../../../components/Button';
 import { MODE_META } from '../hostReducer';
 
 const MODES: SessionMode[] = ['portrait', 'baton', 'multi'];
@@ -76,9 +77,7 @@ export function SetupView({ selectedMode, setupError, onSelectMode, onCreate }: 
 
       {setupError ? <Text style={styles.error}>{setupError}</Text> : null}
 
-      <TouchableOpacity style={styles.createBtn} onPress={handleCreate}>
-        <Text style={styles.createBtnText}>시작하기 →</Text>
-      </TouchableOpacity>
+      <Button title="시작하기 →" variant="primary" style={styles.createBtn} onPress={handleCreate} />
     </ScrollView>
   );
 }
@@ -125,12 +124,5 @@ const styles = StyleSheet.create({
     width: 120,
   },
   error: { fontSize: 13, color: colors.danger },
-  createBtn: {
-    marginTop: 16,
-    paddingVertical: 16,
-    borderRadius: 22,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-  },
-  createBtnText: { color: colors.accentInk, fontSize: 16, fontWeight: '700' },
+  createBtn: { marginTop: 16 },
 });

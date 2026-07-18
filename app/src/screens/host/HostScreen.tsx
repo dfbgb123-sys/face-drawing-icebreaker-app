@@ -6,6 +6,8 @@ import { useSocket } from '../../hooks/useSocket';
 import { createSession, CreateSessionError, fetchActiveSession } from '../../services/api';
 import { colors } from '../../theme';
 import { TopBarExit } from '../../components/TopBarExit';
+import { Button } from '../../components/Button';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 import type { SessionStatus } from '../../types';
 import { hostReducer, initialHostState } from './hostReducer';
 import { SetupView } from './views/SetupView';
@@ -45,6 +47,7 @@ export function HostScreen({ onExit }: HostScreenProps) {
 function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => void }) {
   const socket = useSocket(apiBase);
   const [state, dispatch] = useReducer(hostReducer, initialHostState);
+  const [confirmEndVisible, setConfirmEndVisible] = useState(false);
 
   const hostJoin = useCallback(() => {
     socket.emit('host:join', {}, (res: any) => {
@@ -172,19 +175,15 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
   }, [socket]);
 
   const endSession = useCallback(() => {
-    Alert.alert('세션을 종료할까요?', '되돌릴 수 없어요.', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '종료',
-        style: 'destructive',
-        onPress: () => {
-          socket.emit('host:end-session', {}, () => {
-            clearHostSessionApiBase();
-            dispatch({ type: 'lobbyUpdate', participants: state.participants, status: 'ended' });
-          });
-        },
-      },
-    ]);
+    setConfirmEndVisible(true);
+  }, []);
+
+  const confirmEndSession = useCallback(() => {
+    setConfirmEndVisible(false);
+    socket.emit('host:end-session', {}, () => {
+      clearHostSessionApiBase();
+      dispatch({ type: 'lobbyUpdate', participants: state.participants, status: 'ended' });
+    });
   }, [socket, state.participants]);
 
   return (
@@ -225,12 +224,26 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
       {state.view === 'ended' ? (
         <View style={styles.centered}>
           <Text style={styles.title}>세션이 종료됐어요</Text>
-          <Text style={styles.muted}>새 모임을 시작하려면 아래로 돌아가 참가자 명단을 다시 입력하세요.</Text>
-          <Text style={styles.linkBtn} onPress={() => dispatch({ type: 'showSetup' })}>
-            새 세션 만들기
+          <Text style={styles.muted}>
+            새 모임을 시작하려면 아래로 돌아가{'\n'}참가자 명단을 다시 입력하세요.
           </Text>
+          <Button
+            title="새 세션 만들기"
+            variant="primary"
+            style={styles.newSessionBtn}
+            onPress={() => dispatch({ type: 'showSetup' })}
+          />
         </View>
       ) : null}
+      <ConfirmDialog
+        visible={confirmEndVisible}
+        title="세션을 종료할까요?"
+        message="되돌릴 수 없어요."
+        confirmLabel="종료"
+        destructive
+        onConfirm={confirmEndSession}
+        onCancel={() => setConfirmEndVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -240,6 +253,6 @@ const styles = StyleSheet.create({
   topBar: { paddingHorizontal: 8, paddingTop: 4 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 24 },
   title: { fontSize: 20, fontWeight: '700', color: colors.ink },
-  muted: { fontSize: 14, color: colors.inkSoft, textAlign: 'center' },
-  linkBtn: { marginTop: 8, fontSize: 14, fontWeight: '600', color: colors.accent, textDecorationLine: 'underline' },
+  muted: { fontSize: 14, color: colors.inkSoft, textAlign: 'center', lineHeight: 20 },
+  newSessionBtn: { marginTop: 8 },
 });

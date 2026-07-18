@@ -24,6 +24,7 @@ export const colors = {
   dangerTint: 'rgba(238, 111, 126, 0.12)',
   shadow: 'rgba(56, 76, 113, 0.12)',
   ghostBg: 'rgba(255, 255, 255, 0.70)',
+  overlay: 'rgba(20, 24, 38, 0.46)',
 };
 
 export const fontMono = Platform.select({ ios: 'Courier', android: 'monospace', default: 'monospace' });

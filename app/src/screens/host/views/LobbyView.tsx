@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { Participant, SessionMode } from '../../../types';
 import { colors, fontMono } from '../../../theme';
+import { Button } from '../../../components/Button';
 import { MODE_META } from '../hostReducer';
 
 interface LobbyViewProps {
@@ -47,12 +48,8 @@ export function LobbyView({
         ))}
       </View>
 
-      <TouchableOpacity style={styles.startBtn} onPress={onStart}>
-        <Text style={styles.startBtnText}>시작</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.endBtn} onPress={onEndSession}>
-        <Text style={styles.endBtnText}>세션 종료</Text>
-      </TouchableOpacity>
+      <Button title="시작" variant="secondary" onPress={onStart} />
+      <Button title="세션 종료" variant="ghost" onPress={onEndSession} />
     </ScrollView>
   );
 }
@@ -97,22 +94,4 @@ const styles = StyleSheet.create({
   rosterSeat: { fontSize: 12, color: colors.inkSoft },
   removeBtn: { paddingVertical: 4, paddingHorizontal: 4 },
   removeBtnText: { fontSize: 13, fontWeight: '700', color: colors.danger },
-  startBtn: {
-    paddingVertical: 14,
-    borderRadius: 20,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.line,
-    alignItems: 'center',
-  },
-  startBtnText: { color: colors.ink, fontSize: 16, fontWeight: '700' },
-  endBtn: {
-    paddingVertical: 12,
-    borderRadius: 20,
-    alignItems: 'center',
-    backgroundColor: colors.ghostBg,
-    borderWidth: 1,
-    borderColor: colors.line,
-  },
-  endBtnText: { color: colors.inkSoft, fontSize: 14, fontWeight: '600' },
 });
