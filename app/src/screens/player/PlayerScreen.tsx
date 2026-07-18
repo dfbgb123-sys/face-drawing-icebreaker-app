@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApiBase } from '../../context/ApiBaseContext';
 import { resolveUrl } from '../../config';
 import { useSocket } from '../../hooks/useSocket';

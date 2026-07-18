@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
-import { Alert, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApiBase } from '../../context/ApiBaseContext';
 import { useSocket } from '../../hooks/useSocket';
 import { createSession, CreateSessionError, fetchActiveSession } from '../../services/api';
