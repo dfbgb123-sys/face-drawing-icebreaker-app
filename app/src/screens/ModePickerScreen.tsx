@@ -7,10 +7,9 @@ interface ModePickerScreenProps {
   apiBase: string;
   onPickPlayer: () => void;
   onPickHost: () => void;
-  onChangeServer: () => void;
 }
 
-export function ModePickerScreen({ apiBase, onPickPlayer, onPickHost, onChangeServer }: ModePickerScreenProps) {
+export function ModePickerScreen({ apiBase, onPickPlayer, onPickHost }: ModePickerScreenProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -28,10 +27,6 @@ export function ModePickerScreen({ apiBase, onPickPlayer, onPickHost, onChangeSe
           <Text style={styles.cardTitle}>진행자 모드</Text>
           <Text style={styles.cardBody}>세션을 만들고 게임을 진행해요.</Text>
         </TouchableOpacity>
-
-        <Text style={styles.changeServer} onPress={onChangeServer}>
-          서버 주소 변경
-        </Text>
       </View>
     </SafeAreaView>
   );
@@ -58,11 +53,4 @@ const styles = StyleSheet.create({
   cardIcon: { fontSize: 28 },
   cardTitle: { fontSize: 17, fontWeight: '700', color: colors.ink },
   cardBody: { fontSize: 13, color: colors.inkSoft },
-  changeServer: {
-    marginTop: 16,
-    fontSize: 13,
-    color: colors.inkSoft,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-  },
 });
