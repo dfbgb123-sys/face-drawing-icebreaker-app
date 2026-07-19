@@ -188,8 +188,8 @@
 
     if (isPortraitMode) {
       $('guess-panel').style.display = 'none';
-      $('results-title-text').textContent = '서로를 그린 그림';
-      $('results-intro').textContent = '내가 그린 그림과 상대가 그려준 그림을 비교해보세요.';
+      $('results-title-text').textContent = '마주본 얼굴';
+      $('results-intro').textContent = '서로의 초상화를 비교해보세요';
       renderDuo();
     } else if (isBatonMode) {
       $('results-title-text').textContent = '완성된 캔버스들';

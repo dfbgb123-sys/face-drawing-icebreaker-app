@@ -9,6 +9,14 @@
   let stopTimer = null;
   let selectedMode = 'portrait';
 
+  // 참가자 이름 입력란: 포커스 전에는 예시 이름이 실제 텍스트처럼(연한 색으로) 보이다가,
+  // 포커스되는 순간(타이핑 전이라도) 사라지고 진짜 빈 칸이 된다.
+  const NAMES_EXAMPLE = '유지\n민서';
+  let namesShowingExample = true;
+  function getNamesValue() {
+    return namesShowingExample ? '' : $('names').value;
+  }
+
   const modeMeta = {
     portrait: {
       label: '1:1 초상화',
@@ -20,14 +28,14 @@
     baton: {
       label: '바톤터치',
       icon: '🔄',
-      paragraph: '내 얼굴을 그리는 것으로 시작해, 정해진 시간마다 캔버스가 다음 사람에게 넘어가며 나를 제외한 모든 참가자가 돌아가며 이어 그리는 협업 모드입니다. 그리는 중인 캔버스에는 항상 누구를 그리고 있는지 이름이 표시되고, 모든 순서가 끝나면 내가 처음 시작한 초상화가 다른 사람들의 손을 거쳐 완성된 채로 내게 돌아옵니다. 짧은 라운드일수록 더 재밌어지는 모드예요.',
+      paragraph: '내 얼굴을 그리는 것으로 시작해, 정해진 시간마다 캔버스가 다음 사람에게 넘어가며 나를 제외한 모든 참가자가 돌아가며 이어 그리는 협업 모드입니다. 그리는 중인 캔버스에는 항상 누구를 그리고 있는지 이름이 표시되고, 모든 순서가 끝나면 내가 처음 시작한 초상화가 다른 사람들의 손을 거쳐 완성된 채로 내게 돌아옵니다. 짧은 라운드일수록 더 재밌어지는 모드예요. 여러 사람이 완성시킨 내 얼굴을 기대해보세요!',
       roundTip: '1~2분 권장',
       timeSubNote: '라운드를 짧게 잡을수록 전체 진행이 빨라져요'
     },
     multi: {
       label: '1:多 초상화',
       icon: '🖼️',
-      paragraph: '나를 제외한 모든 참가자를 한 명씩 돌아가며 그리는 모드로, 참가자 수만큼 라운드가 진행됩니다. 다양한 사람의 시선으로 그려진 내 초상화를 한 번에 여러 장 받아볼 수 있다는 게 매력이지만, 인원이 많아질수록 소요 시간이 길어지고 후반부로 갈수록 지칠 수 있어 3~5명 정도의 인원을 추천합니다.',
+      paragraph: '나를 제외한 모든 참가자를 한 명씩 돌아가며 그리는 모드로, 참가자 수만큼 라운드가 진행됩니다. 다양한 사람의 시선으로 그려진 내 초상화를 한 번에 여러 장 받아볼 수 있다는 게 매력이지만, 인원이 많아질수록 소요 시간이 길어지고 후반부로 갈수록 지칠 수 있어 3~5명 정도의 인원을 추천합니다. 내가 보는 타인의 모습, 사람들이 보는 내 모습을 담아보세요!',
       roundTip: '3~5분 권장',
       timeSubNote: '인원이 많을수록 소요시간이 길어져요'
     }
@@ -36,19 +44,29 @@
   function updateSelectedModeDisplay() {
     const meta = modeMeta[selectedMode];
     const lobbyModeLabel = $('session-mode');
-    if (lobbyModeLabel) lobbyModeLabel.textContent = `선택된 모드: ${meta.label}`;
+    if (lobbyModeLabel) {
+      lobbyModeLabel.innerHTML =
+        selectedMode === 'portrait'
+          ? `<span class="mode-badge">${meta.label}</span>`
+          : meta.label;
+    }
 
-    const visual = $('mode-visual');
-    if (visual) visual.dataset.mode = selectedMode;
-    const visualIcon = $('mode-visual-icon');
-    if (visualIcon) visualIcon.textContent = meta.icon;
     const paragraph = $('mode-paragraph');
     if (paragraph) paragraph.textContent = meta.paragraph;
     const roundTip = $('round-tip');
     if (roundTip) roundTip.innerHTML = meta.roundTip;
   }
 
-  function renderRoster(listEl, participants, { removable }) {
+  function intermissionLabel(roundIndex, totalRounds) {
+    return totalRounds > 1 ? `잠시 후 라운드 ${roundIndex + 1} / ${totalRounds} 시작` : '잠시 후 시작';
+  }
+
+  function setForceAdvanceVisible(visible) {
+    const btn = $('force-advance-btn');
+    if (btn) btn.style.display = visible ? '' : 'none';
+  }
+
+  function renderRoster(listEl, participants) {
     listEl.innerHTML = '';
     for (const p of participants) {
       const li = document.createElement('li');
@@ -57,23 +75,12 @@
       const name = document.createElement('span');
       name.className = 'name';
       name.textContent = p.name;
-      const seat = document.createElement('span');
-      seat.className = 'seat';
-      seat.textContent = `#${p.seatIndex + 1}`;
+      const status = document.createElement('span');
+      status.className = 'status' + (p.connected ? ' connected' : '');
+      status.textContent = p.connected ? '참여완료' : '대기';
       li.appendChild(dot);
       li.appendChild(name);
-      li.appendChild(seat);
-      if (removable && !p.claimed) {
-        const btn = document.createElement('button');
-        btn.className = 'remove';
-        btn.textContent = '제외';
-        btn.addEventListener('click', () => {
-          socket.emit('host:remove-participant', { participantId: p.id }, (res) => {
-            if (!res || !res.ok) alert('제외하지 못했어요.');
-          });
-        });
-        li.appendChild(btn);
-      }
+      li.appendChild(status);
       listEl.appendChild(li);
     }
   }
@@ -82,15 +89,16 @@
     socket = io();
 
     socket.on('session:lobby-update', (data) => {
-      renderRoster($('roster-list'), data.participants, { removable: true });
-      renderRoster($('roster-list-progress'), data.participants, { removable: false });
+      renderRoster($('roster-list'), data.participants);
+      renderRoster($('roster-list-progress'), data.participants);
       if (data.status === 'ended') showView('ended');
     });
 
     socket.on('session:intermission', ({ roundIndex, totalRounds, intermissionEndsAt }) => {
       showView('progress');
-      $('round-label').textContent = `잠시 후 라운드 ${roundIndex + 1} / ${totalRounds} 시작`;
+      $('round-label').textContent = intermissionLabel(roundIndex, totalRounds);
       $('submit-count').textContent = '';
+      setForceAdvanceVisible(true);
       if (stopTimer) stopTimer();
       stopTimer = PP.startCountdown($('timer'), intermissionEndsAt);
     });
@@ -98,6 +106,7 @@
     socket.on('session:round-start', ({ roundIndex, totalRounds, roundEndsAt }) => {
       showView('progress');
       $('round-label').textContent = `라운드 ${roundIndex + 1} / ${totalRounds} 진행 중`;
+      setForceAdvanceVisible(true);
       if (stopTimer) stopTimer();
       stopTimer = PP.startCountdown($('timer'), roundEndsAt);
     });
@@ -108,8 +117,9 @@
 
     socket.on('session:reveal-wait', ({ revealEndsAt }) => {
       showView('progress');
-      $('round-label').textContent = '두구두구 🥁 결과를 준비하고 있어요';
+      $('round-label').textContent = '결과를 준비하고 있어요';
       $('submit-count').textContent = '';
+      setForceAdvanceVisible(selectedMode !== 'portrait');
       if (stopTimer) stopTimer();
       stopTimer = PP.startCountdown($('timer'), revealEndsAt);
     });
@@ -128,25 +138,28 @@
     socket.emit('host:join', {}, (res) => {
       if (!res || !res.ok) return;
       const snap = res.snapshot;
-      renderRoster($('roster-list'), snap.participants, { removable: true });
-      renderRoster($('roster-list-progress'), snap.participants, { removable: false });
+      renderRoster($('roster-list'), snap.participants);
+      renderRoster($('roster-list-progress'), snap.participants);
 
       if (snap.status === 'lobby') {
         showView('lobby');
       } else if (snap.status === 'intermission') {
         showView('progress');
-        $('round-label').textContent = `잠시 후 라운드 ${snap.currentRoundIndex + 1} / ${snap.totalRounds} 시작`;
+        $('round-label').textContent = intermissionLabel(snap.currentRoundIndex, snap.totalRounds);
+        setForceAdvanceVisible(true);
         stopTimer = PP.startCountdown($('timer'), snap.intermissionEndsAt);
       } else if (snap.status === 'drawing') {
         showView('progress');
         $('round-label').textContent = `라운드 ${snap.currentRoundIndex + 1} / ${snap.totalRounds} 진행 중`;
+        setForceAdvanceVisible(true);
         stopTimer = PP.startCountdown($('timer'), snap.roundEndsAt);
         if (snap.submissionProgress) {
           $('submit-count').textContent = `${snap.submissionProgress.submittedCount} / ${snap.submissionProgress.totalExpected}명 제출완료`;
         }
       } else if (snap.status === 'reveal-wait') {
         showView('progress');
-        $('round-label').textContent = '두구두구 🥁 결과를 준비하고 있어요';
+        $('round-label').textContent = '결과를 준비하고 있어요';
+        setForceAdvanceVisible(selectedMode !== 'portrait');
         stopTimer = PP.startCountdown($('timer'), snap.revealEndsAt);
       } else if (snap.status === 'results') {
         showView('results');
@@ -195,7 +208,7 @@
   }
 
   function updateParticipantCount() {
-    const names = $('names').value.split('\n').map((s) => s.trim()).filter(Boolean);
+    const names = getNamesValue().split('\n').map((s) => s.trim()).filter(Boolean);
     const countEl = $('participant-count');
     const hintEl = $('participant-hint');
     countEl.textContent = `참가자 ${names.length}명`;
@@ -253,11 +266,32 @@
     }
   }
 
+  $('names').value = NAMES_EXAMPLE;
+  $('names').classList.add('example-text');
+  $('names').addEventListener('focus', () => {
+    if (!namesShowingExample) return;
+    namesShowingExample = false;
+    $('names').value = '';
+    $('names').classList.remove('example-text');
+  });
   $('names').addEventListener('input', () => {
     enforceParticipantLimit();
     updateParticipantCount();
   });
-  $('roundLength').addEventListener('input', updateParticipantCount);
+
+  const MAX_ROUND_LENGTH_MINUTES = 90;
+  function enforceRoundLengthLimit() {
+    const input = $('roundLength');
+    if (input.value === '') return;
+    const num = parseFloat(input.value);
+    if (!Number.isNaN(num) && num > MAX_ROUND_LENGTH_MINUTES) {
+      input.value = String(MAX_ROUND_LENGTH_MINUTES);
+    }
+  }
+  $('roundLength').addEventListener('input', () => {
+    enforceRoundLengthLimit();
+    updateParticipantCount();
+  });
   updateParticipantCount();
 
   const guideModal = $('guide-modal');
@@ -280,7 +314,7 @@
   updateSelectedModeDisplay();
 
   $('create-btn').addEventListener('click', async () => {
-    const names = $('names').value.split('\n').map((s) => s.trim()).filter(Boolean);
+    const names = getNamesValue().split('\n').map((s) => s.trim()).filter(Boolean);
     const minutes = parseFloat($('roundLength').value) || 3;
     $('setup-error').style.display = 'none';
 
@@ -314,9 +348,8 @@
         return;
       }
       $('qr-img').src = data.qrDataUrl;
-      $('join-url').textContent = data.joinUrl;
-      renderRoster($('roster-list'), data.participants, { removable: true });
-      renderRoster($('roster-list-progress'), data.participants, { removable: false });
+      renderRoster($('roster-list'), data.participants);
+      renderRoster($('roster-list-progress'), data.participants);
       showView('lobby');
       connectSocket();
       hostJoinAndRender(data.sessionId);
@@ -343,7 +376,7 @@
   });
 
   function endSession() {
-    if (!confirm('세션을 종료할까요? 되돌릴 수 없어요.')) return;
+    if (!confirm('드로잉을 마무리할까요?\n그림은 자동 저장되지 않아요.')) return;
     socket.emit('host:end-session', {}, () => showView('ended'));
   }
   $('end-btn-lobby').addEventListener('click', endSession);
