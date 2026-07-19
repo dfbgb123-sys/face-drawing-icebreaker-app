@@ -1,7 +1,8 @@
 import React from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import type { Participant } from '../../../types';
 import { colors } from '../../../theme';
+import { Text } from '../../../components/AppText';
 
 interface JoinViewProps {
   participants: Participant[];

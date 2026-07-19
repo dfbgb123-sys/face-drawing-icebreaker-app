@@ -1,6 +1,7 @@
 import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { colors } from '../theme';
+import { Text } from './AppText';
 
 interface ConfirmDialogProps {
   visible: boolean;
@@ -72,10 +73,23 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: '800', color: colors.ink },
   message: { marginTop: 8, fontSize: 14, color: colors.inkSoft, lineHeight: 20 },
   actions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 20 },
-  cancelBtn: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 14 },
+  cancelBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: colors.buttonBorderDefault,
+  },
   cancelText: { fontSize: 14, fontWeight: '700', color: colors.inkSoft },
-  confirmBtn: { paddingVertical: 10, paddingHorizontal: 18, borderRadius: 14, backgroundColor: colors.accentTint },
-  confirmText: { fontSize: 14, fontWeight: '700', color: colors.accent },
-  confirmBtnDestructive: { backgroundColor: colors.dangerTint },
+  confirmBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: colors.navy,
+    backgroundColor: colors.accent,
+  },
+  confirmText: { fontSize: 14, fontWeight: '700', color: colors.accentInk },
+  confirmBtnDestructive: { backgroundColor: colors.dangerTint, borderColor: colors.danger },
   confirmTextDestructive: { color: colors.danger },
 });

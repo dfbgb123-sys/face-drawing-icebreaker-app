@@ -4,6 +4,9 @@
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <!-- 화면 전환 중 RN이 아직 그리지 않은 프레임에서 시스템 기본(검정) 윈도우 배경이
+             잠깐 비치는 현상을 막기 위해, 앱의 실제 배경색(theme.ts의 colors.bg)과 맞춘다. -->
+        <item name="android:windowBackground">#FFFDF5</item>
     </style>
 
 </resources>

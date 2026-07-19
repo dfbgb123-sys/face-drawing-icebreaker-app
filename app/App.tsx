@@ -20,11 +20,7 @@ function App() {
         <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <ApiBaseProvider value={DEFAULT_API_BASE}>
           {mode === 'picker' ? (
-            <ModePickerScreen
-              apiBase={DEFAULT_API_BASE}
-              onPickPlayer={() => setMode('player')}
-              onPickHost={() => setMode('host')}
-            />
+            <ModePickerScreen onPickPlayer={() => setMode('player')} onPickHost={() => setMode('host')} />
           ) : null}
           {mode === 'player' ? <PlayerScreen onExit={() => setMode('picker')} /> : null}
           {mode === 'host' ? <HostScreen onExit={() => setMode('picker')} /> : null}

@@ -1,36 +1,33 @@
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
 import type { Participant, SessionMode } from '../../../types';
-import { colors, fontMono } from '../../../theme';
+import { colors } from '../../../theme';
 import { Button } from '../../../components/Button';
+import { Text } from '../../../components/AppText';
 import { MODE_META } from '../hostReducer';
 
 interface LobbyViewProps {
-  joinUrl: string | null;
   qrDataUrl: string | null;
   selectedMode: SessionMode;
   participants: Participant[];
-  onRemoveParticipant: (participantId: string) => void;
   onStart: () => void;
   onEndSession: () => void;
 }
 
-export function LobbyView({
-  joinUrl,
-  qrDataUrl,
-  selectedMode,
-  participants,
-  onRemoveParticipant,
-  onStart,
-  onEndSession,
-}: LobbyViewProps) {
+export function LobbyView({ qrDataUrl, selectedMode, participants, onStart, onEndSession }: LobbyViewProps) {
+  const isPortrait = selectedMode === 'portrait';
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.qrCard}>
         {qrDataUrl ? <Image source={{ uri: qrDataUrl }} style={styles.qrImage} /> : null}
-        {joinUrl ? <Text style={styles.joinUrl}>{joinUrl}</Text> : null}
-        <Text style={styles.modeLabel}>선택된 모드: {MODE_META[selectedMode].label}</Text>
-        <Text style={styles.hint}>참가자들에게 QR코드를 보여주거나 위 주소를 알려주세요.</Text>
+        {isPortrait ? (
+          <View style={styles.modeBadge}>
+            <Text style={styles.modeBadgeText}>{MODE_META[selectedMode].label}</Text>
+          </View>
+        ) : (
+          <Text style={styles.modeLabel}>{MODE_META[selectedMode].label}</Text>
+        )}
       </View>
 
       <View style={styles.roster}>
@@ -38,17 +35,14 @@ export function LobbyView({
           <View key={p.id} style={styles.rosterRow}>
             <View style={[styles.dot, p.connected && styles.dotConnected]} />
             <Text style={styles.rosterName}>{p.name}</Text>
-            <Text style={styles.rosterSeat}>#{p.seatIndex + 1}</Text>
-            {!p.claimed ? (
-              <TouchableOpacity onPress={() => onRemoveParticipant(p.id)} style={styles.removeBtn}>
-                <Text style={styles.removeBtnText}>제외</Text>
-              </TouchableOpacity>
-            ) : null}
+            <Text style={[styles.statusText, p.connected && styles.statusTextConnected]}>
+              {p.connected ? '참여완료' : '대기'}
+            </Text>
           </View>
         ))}
       </View>
 
-      <Button title="시작" variant="secondary" onPress={onStart} />
+      <Button title="시작" variant="primary" onPress={onStart} />
       <Button title="세션 종료" variant="ghost" onPress={onEndSession} />
     </ScrollView>
   );
@@ -58,7 +52,7 @@ const styles = StyleSheet.create({
   container: { padding: 16, gap: 16 },
   qrCard: {
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
     padding: 22,
     borderRadius: 24,
     backgroundColor: colors.surface,
@@ -66,17 +60,14 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
   },
   qrImage: { width: 180, height: 180, borderRadius: 22 },
-  joinUrl: {
-    fontFamily: fontMono,
-    fontSize: 13,
-    color: colors.ink,
-    backgroundColor: colors.surface2,
-    borderRadius: 12,
+  modeLabel: { fontSize: 16, fontWeight: '700', color: colors.ink },
+  modeBadge: {
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+    backgroundColor: colors.accentGreenTint,
   },
-  modeLabel: { fontSize: 13, fontWeight: '600', color: colors.ink },
-  hint: { fontSize: 12, color: colors.inkSoft, textAlign: 'center' },
+  modeBadgeText: { fontSize: 16, fontWeight: '800', color: colors.accentGreenInk },
   roster: { gap: 8 },
   rosterRow: {
     flexDirection: 'row',
@@ -89,9 +80,8 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
   },
   dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.line },
-  dotConnected: { backgroundColor: colors.accentViolet },
-  rosterName: { flex: 1, fontSize: 14, fontWeight: '600', color: colors.ink },
-  rosterSeat: { fontSize: 12, color: colors.inkSoft },
-  removeBtn: { paddingVertical: 4, paddingHorizontal: 4 },
-  removeBtnText: { fontSize: 13, fontWeight: '700', color: colors.danger },
+  dotConnected: { backgroundColor: colors.accentGreenDeep },
+  rosterName: { flex: 1, fontSize: 15, fontWeight: '700', color: colors.ink },
+  statusText: { fontSize: 13, fontWeight: '700', color: colors.ink, textAlign: 'right' },
+  statusTextConnected: { color: colors.accentGreenInk },
 });

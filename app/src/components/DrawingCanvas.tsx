@@ -87,6 +87,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       .runOnJS(true)
       .minDistance(0)
       .enabled(!disabled)
+      // iOS: 손가락이 캔버스 경계를 살짝 벗어나면 기본값(true)에서는 제스처가 취소되고,
+      // 터치가 상위 뷰로 넘어가면서 화면 전체가 드래그되는 것처럼 보이는 현상이 있었다.
+      // 경계를 벗어나도 제스처를 계속 활성 상태로 유지해서 이를 방지한다.
+      .shouldCancelWhenOutside(false)
       .onBegin((e) => {
         const tool = toolRef.current;
         const newPath = Skia.Path.Make();

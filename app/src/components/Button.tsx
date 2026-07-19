@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   StyleSheet,
-  Text,
   TextStyle,
   TouchableOpacity,
   TouchableOpacityProps,
   ViewStyle,
 } from 'react-native';
-import { colors } from '../theme';
+import { colors, fontFamily } from '../theme';
+import { Text } from './AppText';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
@@ -41,29 +41,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
   },
-  text: { fontSize: 15.5, fontWeight: '700' },
+  text: { fontFamily: fontFamily.bold, fontSize: 15.5, fontWeight: '700' },
   primary: {
     backgroundColor: colors.accent,
-    shadowColor: colors.shadow,
-    shadowOpacity: 1,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 3,
+    borderColor: colors.navy,
   },
   primaryText: { color: colors.accentInk, fontSize: 16, fontWeight: '800' },
   secondary: {
-    backgroundColor: colors.surface,
-    borderColor: colors.line,
-    shadowColor: colors.shadow,
-    shadowOpacity: 1,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
+    backgroundColor: 'transparent',
+    borderColor: colors.buttonBorderDefault,
   },
   secondaryText: { color: colors.ink },
   ghost: {
-    backgroundColor: colors.ghostBg,
-    borderColor: colors.line,
+    backgroundColor: 'transparent',
+    borderColor: colors.buttonBorderDefault,
   },
   ghostText: { color: colors.inkSoft },
   disabled: { opacity: 0.4 },

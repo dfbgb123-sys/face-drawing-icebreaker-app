@@ -1,7 +1,8 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Countdown } from '../../../components/Countdown';
 import { Button } from '../../../components/Button';
+import { Text } from '../../../components/AppText';
 import { colors, fontMono } from '../../../theme';
 import type { Participant } from '../../../types';
 
@@ -10,6 +11,7 @@ interface ProgressViewProps {
   timerEndsAt: number | null;
   submitCountLabel: string;
   participants: Participant[];
+  showForceAdvance: boolean;
   onForceAdvance: () => void;
   onEndSession: () => void;
 }
@@ -19,6 +21,7 @@ export function ProgressView({
   timerEndsAt,
   submitCountLabel,
   participants,
+  showForceAdvance,
   onForceAdvance,
   onEndSession,
 }: ProgressViewProps) {
@@ -35,12 +38,14 @@ export function ProgressView({
           <View key={p.id} style={styles.rosterRow}>
             <View style={[styles.dot, p.connected && styles.dotConnected]} />
             <Text style={styles.rosterName}>{p.name}</Text>
-            <Text style={styles.rosterSeat}>#{p.seatIndex + 1}</Text>
+            <Text style={[styles.statusText, p.connected && styles.statusTextConnected]}>
+              {p.connected ? '참여완료' : '대기'}
+            </Text>
           </View>
         ))}
       </View>
 
-      <Button title="다음 라운드로 넘기기" variant="secondary" onPress={onForceAdvance} />
+      {showForceAdvance ? <Button title="다음 라운드로 넘기기" variant="secondary" onPress={onForceAdvance} /> : null}
       <Button title="세션 종료" variant="ghost" onPress={onEndSession} />
     </ScrollView>
   );
@@ -78,7 +83,8 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
   },
   dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.line },
-  dotConnected: { backgroundColor: colors.accentViolet },
+  dotConnected: { backgroundColor: colors.accentGreenDeep },
   rosterName: { flex: 1, fontSize: 14, fontWeight: '600', color: colors.ink },
-  rosterSeat: { fontSize: 12, color: colors.inkSoft },
+  statusText: { fontSize: 13, fontWeight: '700', color: colors.ink, textAlign: 'right' },
+  statusTextConnected: { color: colors.accentGreenInk },
 });

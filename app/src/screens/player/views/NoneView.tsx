@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { colors } from '../../../theme';
 import { Button } from '../../../components/Button';
+import { Text } from '../../../components/AppText';
 
 interface NoneViewProps {
   title: string;

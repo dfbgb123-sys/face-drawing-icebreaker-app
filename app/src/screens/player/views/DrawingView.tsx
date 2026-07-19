@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Countdown } from '../../../components/Countdown';
 import { DrawingCanvas, DrawingCanvasHandle, DrawingTool } from '../../../components/DrawingCanvas';
-import { colors, fontMono } from '../../../theme';
+import { colors, fontFamily, fontMono } from '../../../theme';
 import { Button } from '../../../components/Button';
+import { Text } from '../../../components/AppText';
 import type { Assignment, SessionMode } from '../../../types';
 import { subjectPromptText } from '../playerReducer';
 
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  subjectName: { fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'center' },
+  subjectName: { fontFamily: fontFamily.bold, fontSize: 22, fontWeight: '800', color: colors.ink, textAlign: 'center' },
   timer: { fontSize: 28 },
   canvasWrap: {
     padding: 10,
@@ -140,19 +141,19 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 2,
   },
-  toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center', alignItems: 'center' },
-  swatch: { width: 38, height: 38, borderRadius: 19, borderWidth: 2, borderColor: 'transparent' },
-  swatchActive: { borderColor: colors.accent },
+  toolbar: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, justifyContent: 'center', alignItems: 'center' },
+  swatch: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: 'transparent' },
+  swatchActive: { borderColor: colors.accentGreenDeep },
   toolBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 11,
+    borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: colors.line,
-    backgroundColor: colors.surface,
+    borderColor: colors.buttonBorderDefault,
+    backgroundColor: 'transparent',
   },
-  toolBtnActive: { borderColor: colors.accent, backgroundColor: colors.accentTint },
-  toolBtnText: { fontSize: 14, fontWeight: '700', color: colors.inkSoft },
+  toolBtnActive: { borderColor: colors.accentGreenDeep, backgroundColor: colors.accentGreenTint },
+  toolBtnText: { fontSize: 13, fontWeight: '700', color: colors.inkSoft },
   toolBtnTextActive: { color: colors.ink },
   submitBtn: { width: '100%', maxWidth: 320 },
   submittedBanner: {

@@ -1,21 +1,25 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
+  TextInput as RNTextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import type { SessionMode } from '../../../types';
-import { colors } from '../../../theme';
+import { colors, fontFamily } from '../../../theme';
 import { Button } from '../../../components/Button';
+import { Text } from '../../../components/AppText';
+import { TextInput } from '../../../components/AppTextInput';
 import { MODE_META } from '../hostReducer';
 
 const MODES: SessionMode[] = ['portrait', 'baton', 'multi'];
+const MAX_ROUND_LENGTH_MINUTES = 90;
+const NAMES_EXAMPLE = '유지\n민서';
 
 interface SetupViewProps {
   selectedMode: SessionMode;
@@ -26,12 +30,13 @@ interface SetupViewProps {
 
 export function SetupView({ selectedMode, setupError, onSelectMode, onCreate }: SetupViewProps) {
   const [namesText, setNamesText] = useState('');
+  const [namesFocused, setNamesFocused] = useState(false);
   const [roundLengthText, setRoundLengthText] = useState('3');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
-  const namesInputRef = useRef<TextInput>(null);
-  const roundInputRef = useRef<TextInput>(null);
-  const focusedInputRef = useRef<TextInput | null>(null);
+  const namesInputRef = useRef<RNTextInput>(null);
+  const roundInputRef = useRef<RNTextInput>(null);
+  const focusedInputRef = useRef<RNTextInput | null>(null);
   const scrollOffsetRef = useRef(0);
   const keyboardVisibleRef = useRef(false);
 
@@ -71,7 +76,7 @@ export function SetupView({ selectedMode, setupError, onSelectMode, onCreate }: 
     };
   }, []);
 
-  const handleInputFocus = (ref: React.RefObject<TextInput | null>) => {
+  const handleInputFocus = (ref: React.RefObject<RNTextInput | null>) => {
     focusedInputRef.current = ref.current;
     scrollFocusedIntoView();
   };
@@ -85,9 +90,37 @@ export function SetupView({ selectedMode, setupError, onSelectMode, onCreate }: 
     [namesText]
   );
 
+  const duplicateNames = useMemo(() => {
+    const seen = new Set<string>();
+    const dupes = new Set<string>();
+    for (const name of names) {
+      if (seen.has(name)) dupes.add(name);
+      seen.add(name);
+    }
+    return dupes;
+  }, [names]);
+
   const meta = MODE_META[selectedMode];
+  const showNamesExample = !namesFocused && namesText === '';
+
+  const handleRoundLengthChange = (text: string) => {
+    const digitsOnly = text.replace(/[^0-9]/g, '');
+    if (digitsOnly === '') {
+      setRoundLengthText('');
+      return;
+    }
+    const clamped = Math.min(parseInt(digitsOnly, 10), MAX_ROUND_LENGTH_MINUTES);
+    setRoundLengthText(String(clamped));
+  };
 
   const handleCreate = () => {
+    if (duplicateNames.size > 0) {
+      Alert.alert(
+        '이름이 겹쳐요',
+        `다음 이름을 두 명 이상이 쓰고 있어요: ${[...duplicateNames].join(', ')}\n서로 다른 이름으로 입력해주세요.`
+      );
+      return;
+    }
     const minutes = parseFloat(roundLengthText) || 3;
     onCreate(names, minutes);
   };
@@ -118,37 +151,47 @@ export function SetupView({ selectedMode, setupError, onSelectMode, onCreate }: 
           ))}
         </View>
         <View style={styles.modeCard}>
-          <Text style={styles.modeIcon}>{meta.icon}</Text>
           <Text style={styles.modeDescription}>{meta.description}</Text>
-          <Text style={styles.modeHint}>{meta.hint}</Text>
         </View>
 
-        <Text style={styles.sectionLabel}>참가자 이름 (한 줄에 한 명, 앉은 순서대로)</Text>
+        <Text style={styles.sectionLabel}>
+          참가자 이름 <Text style={styles.sectionHint}>(한 줄에 한 명, 순서대로)</Text>
+        </Text>
         <TextInput
           ref={namesInputRef}
-          style={styles.textarea}
+          style={[styles.textarea, showNamesExample && styles.textareaExampleText]}
           multiline
-          value={namesText}
+          value={showNamesExample ? NAMES_EXAMPLE : namesText}
           onChangeText={setNamesText}
-          placeholder={'유지\n민서\n하늘\n다온\n서연'}
           textAlignVertical="top"
-          onFocus={() => handleInputFocus(namesInputRef)}
+          onFocus={() => {
+            setNamesFocused(true);
+            handleInputFocus(namesInputRef);
+          }}
         />
-        <Text style={styles.participantCount}>참가자 {names.length}명</Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.modeHint}>{meta.hint}</Text>
+          <Text style={styles.participantCount}>참가자 {names.length}명</Text>
+        </View>
+        {duplicateNames.size > 0 ? (
+          <Text style={styles.error}>이름이 겹쳐요: {[...duplicateNames].join(', ')}</Text>
+        ) : null}
 
-        <Text style={styles.sectionLabel}>그림 제출 시간 (분)</Text>
+        <Text style={styles.sectionLabel}>
+          그림 제출 시간 <Text style={styles.sectionHint}>(분)</Text>
+        </Text>
         <TextInput
           ref={roundInputRef}
           style={styles.input}
           keyboardType="numeric"
           value={roundLengthText}
-          onChangeText={setRoundLengthText}
+          onChangeText={handleRoundLengthChange}
           onFocus={() => handleInputFocus(roundInputRef)}
         />
 
         {setupError ? <Text style={styles.error}>{setupError}</Text> : null}
 
-        <Button title="시작하기 →" variant="primary" style={styles.createBtn} onPress={handleCreate} />
+        <Button title="시작하기" variant="primary" style={styles.createBtn} onPress={handleCreate} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -157,26 +200,27 @@ export function SetupView({ selectedMode, setupError, onSelectMode, onCreate }: 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   container: { padding: 16, gap: 8 },
-  sectionLabel: { fontSize: 14, fontWeight: '600', color: colors.ink, marginTop: 12 },
+  sectionLabel: { fontFamily: fontFamily.bold, fontSize: 16, fontWeight: '800', color: colors.ink, marginTop: 14 },
+  sectionHint: { fontSize: 12.5, fontWeight: '500', color: colors.inkSoft },
   modeRow: { flexDirection: 'row', gap: 8 },
   modeBtn: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 999,
     borderWidth: 1.5,
-    borderColor: colors.line,
+    borderColor: colors.buttonBorderDefault,
     alignItems: 'center',
-    backgroundColor: colors.surface,
+    backgroundColor: 'transparent',
   },
-  modeBtnActive: { backgroundColor: colors.accentTint, borderColor: colors.accentViolet },
+  modeBtnActive: { backgroundColor: colors.accentGreenTint, borderColor: colors.accentGreenDeep },
   modeBtnText: { fontSize: 13, fontWeight: '700', color: colors.ink },
-  modeBtnTextActive: { color: colors.accentVioletInk },
+  modeBtnTextActive: { color: colors.accentGreenInk },
   modeCard: { padding: 16, borderRadius: 22, backgroundColor: colors.surface2, gap: 4 },
-  modeIcon: { fontSize: 24 },
   modeDescription: { fontSize: 13, color: colors.ink, lineHeight: 18 },
-  modeHint: { fontSize: 12, color: colors.inkSoft },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  modeHint: { flex: 1, fontSize: 12, color: colors.inkSoft, textAlign: 'left' },
   textarea: {
-    minHeight: 110,
+    minHeight: 80,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: colors.line,
@@ -185,15 +229,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.ink,
   },
-  participantCount: { fontSize: 12, color: colors.inkSoft },
+  textareaExampleText: { color: 'rgba(28, 35, 50, 0.35)' },
+  participantCount: { fontSize: 12, color: colors.inkSoft, textAlign: 'right' },
   input: {
     borderRadius: 18,
     borderWidth: 1,
     borderColor: colors.line,
     backgroundColor: colors.surface,
     padding: 14,
-    fontSize: 14,
+    fontFamily: fontFamily.bold,
+    fontSize: 18,
+    fontWeight: '700',
     color: colors.ink,
+    textAlign: 'center',
     width: 120,
   },
   error: { fontSize: 13, color: colors.danger },

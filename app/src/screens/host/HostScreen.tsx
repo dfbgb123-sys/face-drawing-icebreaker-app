@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text } from '../../components/AppText';
 import { useApiBase } from '../../context/ApiBaseContext';
 import { useSocket } from '../../hooks/useSocket';
 import { createSession, CreateSessionError, fetchActiveSession } from '../../services/api';
-import { colors } from '../../theme';
+import { colors, fontFamily } from '../../theme';
 import { TopBarExit } from '../../components/TopBarExit';
+import { PaperBackground } from '../../components/PaperBackground';
 import { Button } from '../../components/Button';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import type { SessionStatus } from '../../types';
@@ -126,7 +128,6 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
         dispatch({
           type: 'sessionCreated',
           sessionId: result.sessionId,
-          joinUrl: result.joinUrl,
           qrDataUrl: result.qrDataUrl,
           participants: result.participants,
         });
@@ -147,15 +148,6 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
       }
     },
     [apiBase, state.selectedMode, hostJoin]
-  );
-
-  const removeParticipant = useCallback(
-    (participantId: string) => {
-      socket.emit('host:remove-participant', { participantId }, (res: any) => {
-        if (!res || !res.ok) Alert.alert('제외하지 못했어요.');
-      });
-    },
-    [socket]
   );
 
   const startSession = useCallback(() => {
@@ -187,7 +179,8 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
   }, [socket, state.participants]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <PaperBackground>
+      <SafeAreaView style={styles.safeArea}>
       <View style={styles.topBar}>
         <TopBarExit onPress={onExit} />
       </View>
@@ -201,11 +194,9 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
       ) : null}
       {state.view === 'lobby' ? (
         <LobbyView
-          joinUrl={state.joinUrl}
           qrDataUrl={state.qrDataUrl}
           selectedMode={state.selectedMode}
           participants={state.participants}
-          onRemoveParticipant={removeParticipant}
           onStart={startSession}
           onEndSession={endSession}
         />
@@ -216,6 +207,7 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
           timerEndsAt={state.timerEndsAt}
           submitCountLabel={state.submitCountLabel}
           participants={state.participants}
+          showForceAdvance={!(state.selectedMode === 'portrait' && state.revealWait)}
           onForceAdvance={forceAdvance}
           onEndSession={endSession}
         />
@@ -225,7 +217,7 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
         <View style={styles.centered}>
           <Text style={styles.title}>세션이 종료됐어요</Text>
           <Text style={styles.muted}>
-            새 모임을 시작하려면 아래로 돌아가{'\n'}참가자 명단을 다시 입력하세요.
+            새 모임을 시작하려면 아래로 돌아가서{'\n'}참가자 명단을 다시 입력하세요.
           </Text>
           <Button
             title="새 세션 만들기"
@@ -237,22 +229,23 @@ function HostScreenInner({ apiBase, onExit }: { apiBase: string; onExit: () => v
       ) : null}
       <ConfirmDialog
         visible={confirmEndVisible}
-        title="세션을 종료할까요?"
-        message="되돌릴 수 없어요."
+        title="드로잉을 마무리할까요?"
+        message="그림은 자동 저장되지 않아요."
         confirmLabel="종료"
         destructive
         onConfirm={confirmEndSession}
         onCancel={() => setConfirmEndVisible(false)}
       />
-    </SafeAreaView>
+      </SafeAreaView>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.bg },
+  safeArea: { flex: 1 },
   topBar: { paddingHorizontal: 8, paddingTop: 4 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 24 },
-  title: { fontSize: 20, fontWeight: '700', color: colors.ink },
+  title: { fontFamily: fontFamily.bold, fontSize: 20, fontWeight: '700', color: colors.ink },
   muted: { fontSize: 14, color: colors.inkSoft, textAlign: 'center', lineHeight: 20 },
   newSessionBtn: { marginTop: 8 },
 });

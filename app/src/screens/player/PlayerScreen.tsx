@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
-import { Alert, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text } from '../../components/AppText';
 import { useApiBase } from '../../context/ApiBaseContext';
 import { resolveUrl } from '../../config';
 import { useSocket } from '../../hooks/useSocket';
@@ -8,7 +9,8 @@ import { clearIdentity, loadIdentity, saveIdentity } from '../../services/identi
 import { fetchActiveSession, submitDrawing } from '../../services/api';
 import type { DrawingCanvasHandle } from '../../components/DrawingCanvas';
 import { TopBarExit } from '../../components/TopBarExit';
-import { colors } from '../../theme';
+import { PaperBackground } from '../../components/PaperBackground';
+import { colors, fontFamily } from '../../theme';
 import type { Assignment, Portrait, SessionStatus } from '../../types';
 import { initialPlayerState, playerReducer } from './playerReducer';
 import { NoneView } from './views/NoneView';
@@ -28,9 +30,11 @@ export function PlayerScreen({ onExit }: PlayerScreenProps) {
   const socket = useSocket(apiBase);
   const [state, dispatch] = useReducer(playerReducer, initialPlayerState);
   const canvasRef = useRef<DrawingCanvasHandle>(null);
-  const { width: windowWidth } = useWindowDimensions();
-  const canvasWidth = Math.min(windowWidth - 32, 480);
-  const canvasHeight = Math.round((canvasWidth * 3) / 4);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const canvasWidth = Math.min(windowWidth - 32, 420);
+  // 세로로 긴 캔버스를 쓰되, 헤더/툴바/제출 버튼이 들어갈 공간(약 360dp)을 미리 빼서
+  // "제출하기" 버튼이 화면 밖으로 밀려나지 않게 화면 높이 기준 상한을 둔다.
+  const canvasHeight = Math.min(Math.round((canvasWidth * 4) / 3), Math.round(windowHeight - 360));
 
   const loadJoinScreen = useCallback(async () => {
     dispatch({ type: 'loading' });
@@ -156,6 +160,12 @@ export function PlayerScreen({ onExit }: PlayerScreenProps) {
     [socket, state.sessionId, loadJoinScreen]
   );
 
+  const backToJoin = useCallback(() => {
+    socket.emit('player:leave', {}, () => {});
+    clearIdentity();
+    loadJoinScreen();
+  }, [socket, loadJoinScreen]);
+
   const doSubmit = useCallback(() => {
     if (
       state.submittedThisRound ||
@@ -214,10 +224,11 @@ export function PlayerScreen({ onExit }: PlayerScreenProps) {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.topBar}>
-        <TopBarExit onPress={onExit} />
-      </View>
+    <PaperBackground>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.topBar}>
+          <TopBarExit onPress={onExit} />
+        </View>
       {state.view === 'loading' ? (
         <View style={styles.centered}>
           <Text style={styles.muted}>불러오는 중...</Text>
@@ -227,7 +238,7 @@ export function PlayerScreen({ onExit }: PlayerScreenProps) {
         <NoneView title={state.noneMessage.title} body={state.noneMessage.body} onRetry={loadJoinScreen} />
       ) : null}
       {state.view === 'join' ? <JoinView participants={state.allParticipants} onJoin={joinAsParticipant} /> : null}
-      {state.view === 'lobby' ? <LobbyView name={state.myName} /> : null}
+      {state.view === 'lobby' ? <LobbyView name={state.myName} onBack={backToJoin} /> : null}
       {state.view === 'intermission' ? (
         <IntermissionView assignment={state.pendingAssignment} intermissionEndsAt={state.intermissionEndsAt} />
       ) : null}
@@ -264,18 +275,19 @@ export function PlayerScreen({ onExit }: PlayerScreenProps) {
       ) : null}
       {state.view === 'ended' ? (
         <View style={styles.centered}>
-          <Text style={styles.title}>세션이 종료됐어요</Text>
-          <Text style={styles.muted}>즐거운 시간 되셨길 바라요.</Text>
+          <Text style={styles.title}>라운드가 종료되었어요</Text>
+          <Text style={styles.muted}>즐거운 시간이 되셨기 바랍니다!</Text>
         </View>
       ) : null}
-    </SafeAreaView>
+      </SafeAreaView>
+    </PaperBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.bg },
+  safeArea: { flex: 1 },
   topBar: { paddingHorizontal: 8, paddingTop: 4 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 24 },
-  title: { fontSize: 20, fontWeight: '700', color: colors.ink },
+  title: { fontFamily: fontFamily.bold, fontSize: 20, fontWeight: '700', color: colors.ink },
   muted: { fontSize: 14, color: colors.inkSoft },
 });

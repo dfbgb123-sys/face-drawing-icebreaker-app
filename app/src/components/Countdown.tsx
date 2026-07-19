@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, TextStyle } from 'react-native';
+import { StyleSheet, TextStyle } from 'react-native';
 import { useCountdown } from '../hooks/useCountdown';
 import { colors, fontMono } from '../theme';
+import { Text } from './AppText';
 
 interface CountdownProps {
   endsAt: number | null | undefined;

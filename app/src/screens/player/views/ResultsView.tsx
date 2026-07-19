@@ -1,8 +1,9 @@
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { resolveUrl } from '../../../config';
 import { colors, fontMono } from '../../../theme';
 import { Button } from '../../../components/Button';
+import { Text } from '../../../components/AppText';
 import type { GuessState, Participant, Portrait, SessionMode } from '../../../types';
 
 interface ResultsViewProps {
@@ -56,8 +57,8 @@ export function ResultsView({
   let title = '나를 그린 그림들';
   let intro = '';
   if (isPortraitMode) {
-    title = '서로를 그린 그림';
-    intro = '내가 그린 그림과 상대가 그려준 그림을 비교해보세요.';
+    title = '마주본 얼굴';
+    intro = '서로의 초상화를 비교해보세요';
   } else if (isBatonMode) {
     title = '완성된 캔버스들';
     intro = '내 캔버스부터 순서대로 모두의 완성작을 확인해보세요.';
@@ -78,14 +79,14 @@ export function ResultsView({
       <Text style={styles.intro}>{intro}</Text>
 
       {isPortraitMode ? (
-        <View style={styles.duoRow}>
+        <View style={styles.duoColumn}>
+          <View style={[styles.duoCard, styles.duoCardHighlight]}>
+            <Text style={styles.duoLabel}>상대가 그린 내 그림</Text>
+            <PortraitImage apiBase={apiBase} portrait={portraits[0] ?? null} emptyText="상대가 아직 제출하지 않았어요." />
+          </View>
           <View style={styles.duoCard}>
             <Text style={styles.duoLabel}>내가 그린 그림</Text>
             <PortraitImage apiBase={apiBase} portrait={myDrawing} emptyText="아직 그림이 없어요." />
-          </View>
-          <View style={styles.duoCard}>
-            <Text style={styles.duoLabel}>상대가 그린 내 그림</Text>
-            <PortraitImage apiBase={apiBase} portrait={portraits[0] ?? null} emptyText="상대가 아직 제출하지 않았어요." />
           </View>
         </View>
       ) : (
@@ -165,9 +166,8 @@ const styles = StyleSheet.create({
   icon: { fontSize: 20 },
   title: { fontSize: 20, fontWeight: '700', color: colors.ink },
   intro: { fontSize: 13, color: colors.inkSoft, textAlign: 'center' },
-  duoRow: { flexDirection: 'row', gap: 12 },
+  duoColumn: { gap: 12 },
   duoCard: {
-    flex: 1,
     gap: 8,
     alignItems: 'center',
     padding: 12,
@@ -175,6 +175,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
+  },
+  duoCardHighlight: {
+    backgroundColor: colors.accentGreenTint,
+    borderColor: colors.accentGreenDeep,
+    borderWidth: 1.5,
   },
   duoLabel: { fontSize: 13, fontWeight: '700', color: colors.inkSoft, textAlign: 'center' },
   navRow: {
@@ -241,9 +246,9 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     backgroundColor: colors.surface,
   },
-  guessOptionSelected: { borderColor: colors.accentViolet, backgroundColor: colors.accentVioletTint },
+  guessOptionSelected: { borderColor: colors.accentGreenDeep, backgroundColor: colors.accentGreenTint },
   guessOptionText: { fontSize: 13, color: colors.ink, fontWeight: '700' },
-  guessOptionTextSelected: { color: colors.accent2 },
+  guessOptionTextSelected: { color: colors.accentGreenInk },
   revealBtn: { alignSelf: 'center', marginTop: 8 },
   revealResult: {
     padding: 14,
@@ -255,6 +260,6 @@ const styles = StyleSheet.create({
   revealCorrect: {},
   revealWrong: {},
   revealResultText: { fontSize: 13, fontWeight: '700', textAlign: 'center' },
-  revealResultTextCorrect: { color: colors.accent2 },
+  revealResultTextCorrect: { color: colors.accentGreenInk },
   revealResultTextWrong: { color: colors.danger },
 });
